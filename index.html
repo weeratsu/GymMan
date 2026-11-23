@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="th"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>GymMan</title>
+<link rel="icon" type="image/svg+xml" href="icons/icon.svg"><link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png"><link rel="apple-touch-icon" href="icons/icon-180.png"><link rel="manifest" href="manifest.json"><meta name="theme-color" content="#1e293b">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css"></head><body>
+<header><span style="display:flex;align-items:center;gap:8px"><img src="icons/icon.svg" width="26" height="26" style="border-radius:6px">GymMan</span><button id="thBtn" onclick="toggleTheme()">🌙</button></header>
+<div class="modal" id="modal" onmousedown="this._d=event.target===this" onclick="if(this._d&&event.target===this)closeM()"><div class="modal-box"><h3 id="mT"></h3><div id="mB"></div><div class="modal-btns"><button class="del" id="mDel">ลบ</button><button class="sec" onclick="closeM()">ยกเลิก</button><button onclick="mSave()">บันทึก</button></div></div></div>
+<div class="modal" id="dlg"><div class="modal-box" style="max-width:380px"><h3 id="dT"></h3><div id="dM" style="white-space:pre-line;font-size:14px"></div><div class="modal-btns"><button class="sec" id="dC" onclick="DR&&DR(false)">ยกเลิก</button><button id="dO" onclick="DR&&DR(true)"></button></div></div></div>
+<main>
+<section class="page on" id="p-log">
+ <div class="card"><h3>บันทึกการเล่น</h3>
+  <div class="row"><div><label>วันที่</label><input type="date" id="wDate"></div><div><label>ชื่อยิม <span class="new" id="nBrand"></span></label><div class="cx"><input id="wBrand" list="dlBrand" placeholder="เช่น Jetts"><i onclick="clr('wBrand')">✕</i></div></div></div>
+  <label>สาขา <span class="new" id="nGym"></span></label><div class="cx"><input id="wGym" list="dlGym" placeholder="พิมพ์/เลือก"><i onclick="clr('wGym')">✕</i></div>
+  <div class="row"><div><label>อุปกรณ์ <span class="new" id="nEquip"></span></label><div class="cx"><input id="wEquip" list="dlEquip" placeholder="ทั้งหมด"><i onclick="clr('wEquip')">✕</i></div></div>
+  <div><label>ส่วน <span class="new" id="nPart"></span></label><div class="cx"><input id="wPart" list="dlPart" placeholder="ทั้งหมด"><i onclick="clr('wPart')">✕</i></div></div></div>
+  <label>ท่า <span class="new" id="nEx"></span> <a class="lnk" onclick="newEx()">↺ เริ่มท่าใหม่ (ล้างทั้งหมด)</a></label><div class="cx"><input id="wEx" list="dlEx" placeholder="พิมพ์/เลือก"><i onclick="clr('wEx')">✕</i></div>
+  <div id="wStr" class="row3"><div><label>น้ำหนัก <a class="lnk" id="uBtn" onclick="toggleUnit()"></a></label><input type="number" step="any" id="wW" inputmode="decimal"></div>
+  <div><label>Reps</label><input type="number" id="wR" inputmode="numeric"></div><div><label>Sets</label><input type="number" id="wS" inputmode="numeric"></div></div>
+  <div id="wCar" style="display:none"><div class="row3"><div><label>ระยะทาง (กม.)</label><input type="number" step="any" id="wDist" inputmode="decimal"></div><div><label>เวลา (นาที)</label><input type="number" step="any" id="wTime" inputmode="decimal"></div><div><label>Avg Pace</label><input id="wPace" readonly placeholder="อัตโนมัติ"></div></div>
+  <div class="row3"><div><label>ความเร็ว (กม./ชม.)</label><input type="number" step="any" id="wSpd" placeholder="ว่าง=คำนวณ"></div><div><label>ความชัน (%)</label><input type="number" step="any" id="wInc"></div><div><label>kcal</label><input type="number" id="wKcal"></div></div>
+  <label>Avg HR (bpm)</label><input type="number" id="wHR"></div>
+  <div id="wHist"></div>
+  <label>หมายเหตุ</label><input id="wNote">
+  <button onclick="addLog()">💾 บันทึก</button> <button class="sec" onclick="clearFilter()">ล้างตัวกรอง</button> <button class="sec" onclick="startTimer(S.rest)">⏱ พัก</button>
+ </div>
+ <div class="card"><h3>⏱ จับเวลาพัก</h3><div id="timer">00:00</div>
+  <div class="tbtns"><button class="sec" onclick="startTimer(30)">30s</button><button class="sec" onclick="startTimer(60)">60s</button><button class="sec" onclick="startTimer(90)">90s</button><button class="sec" onclick="startTimer(120)">2m</button><button class="sec" onclick="startTimer(180)">3m</button><button class="del" style="margin-top:10px;padding:10px 14px" onclick="stopTimer()">หยุด</button></div></div>
+ <div class="card"><h3>📊 ประวัติ / รายงาน</h3><div class="row3"><select id="hM" onchange="HV.m=this.value;HV.id='';renderLogs()"><option value="day">ตามวัน</option><option value="part">ตามส่วน</option><option value="ex">ตามท่า</option></select><select id="hId" onchange="HV.id=this.value;renderLogs()"></select><select id="hR" onchange="HV.r=this.value;renderLogs()"><option value="30">30 วัน</option><option value="90" selected>90 วัน</option><option value="365">1 ปี</option><option value="all">ทั้งหมด</option></select></div><div id="hMap"></div><div id="logList"></div></div>
+</section>
+<section class="page" id="p-food">
+ <div class="card"><h3>บันทึกอาหาร</h3>
+  <div class="row"><div><label>วันที่</label><input type="date" id="fDate" onchange="renderFood()"></div><div><label>มื้อ</label><select id="fMeal"><option>เช้า</option><option>กลางวัน</option><option>เย็น</option><option>ว่าง</option><option>ก่อนเล่น</option><option>หลังเล่น</option></select></div></div>
+  <div class="row"><div><label>อาหาร <span class="new" id="nFood"></span></label><input id="fFood" list="dlFood" placeholder="พิมพ์/เลือก"></div><div><label>จำนวน (หน่วย)</label><input type="number" step="0.25" id="fQty" value="1"></div></div>
+  <div class="muted" style="margin-top:8px">ต่อ 1 หน่วย (จำไว้ในรายการอาหาร)</div>
+  <div class="row4"><div><label>kcal</label><input type="number" id="fK"></div><div><label>Protein g</label><input type="number" step="0.1" id="fP"></div><div><label>Carb g</label><input type="number" step="0.1" id="fC"></div><div><label>Fat g</label><input type="number" step="0.1" id="fF"></div></div>
+  <button onclick="addFood()">💾 บันทึก</button></div>
+ <div class="card"><h3>รวมวันนี้</h3><div class="tot" id="fTot"></div><div id="foodList"></div></div>
+</section>
+<section class="page" id="p-body">
+ <div class="card"><h3>บันทึกร่างกาย</h3><label>วันที่</label><input type="date" id="bDate"><div id="bForm"></div><button onclick="addBody()">💾 บันทึก</button></div>
+ <div class="card"><h3>ประวัติร่างกาย</h3><div style="overflow-x:auto" id="bodyList"></div></div>
+</section>
+<section class="page" id="p-chart">
+ <div class="card"><h3>📈 น้ำหนักที่ยก (Max ต่อวัน)</h3><select id="cEx" onchange="drawCharts()"></select><canvas id="c1"></canvas><div class="muted" id="c1i"></div></div>
+ <div class="card"><h3>📊 ร่างกาย / อาหาร</h3><select id="cBody" onchange="drawCharts()"><option value="f:k">kcal ต่อวัน</option><option value="f:p">Protein ต่อวัน</option><option value="f:c">Carb ต่อวัน</option><option value="f:f">Fat ต่อวัน</option></select>
+  <canvas id="c2"></canvas><div class="muted" id="c2i"></div></div>
+</section>
+<section class="page" id="p-set">
+ <div class="muted" style="margin-bottom:8px">แตะรายการเพื่อแก้ไข/ลบ (ลิงก์ด้วย id ประวัติเปลี่ยนตาม) · ลบได้เฉพาะที่ยังไม่ถูกใช้</div>
+ <div class="card"><h3>ยิม & สาขา</h3><div id="s-brand"></div></div>
+ <div class="card"><h3>ส่วนของร่างกาย</h3><div id="s-part"></div></div>
+ <div class="card"><h3>อุปกรณ์</h3><div id="s-equip"></div></div>
+ <div class="card"><h3>ท่า</h3><input id="xq" placeholder="🔍 ค้นหาท่า / ส่วน / อุปกรณ์" oninput="XF.q=this.value;renderExT()"><div class="row" style="margin-top:6px"><select id="xp" onchange="XF.p=this.value;renderExT()"></select><select id="xe" onchange="XF.e=this.value;renderExT()"></select></div><div style="overflow-x:auto;margin-top:6px" id="s-exT"></div><div class="row"><input id="add-ex" placeholder="เพิ่มท่า"><button style="margin:0" onclick="addM('ex')">+</button></div></div>
+ <div class="card"><h3>อาหาร</h3><div id="s-food"></div></div>
+ <div class="card"><h3>เวลาพักเริ่มต้น (วินาที)</h3><input type="number" id="sRest" onchange="S.rest=+this.value||90;save()"></div>
+ <div class="card"><h3>ข้อมูล</h3><button onclick="exportCSV()">⬇️ Export CSV</button> <button class="sec" onclick="csvIn.click()">⬆️ Import CSV</button>
+  <input type="file" id="csvIn" accept=".csv" hidden onchange="importCSV(this.files[0]);this.value=''"></div>
+</section>
+</main>
+<datalist id="dlGym"></datalist><datalist id="dlBrand"></datalist><datalist id="dlPart"></datalist><datalist id="dlEquip"></datalist><datalist id="dlEx"></datalist><datalist id="dlFood"></datalist>
+<nav><button class="on" onclick="go('log',this)">🏋️ เล่น</button><button onclick="go('food',this)">🍱 อาหาร</button><button onclick="go('body',this)">⚖️ ร่างกาย</button><button onclick="go('chart',this)">📈 กราฟ</button><button onclick="go('set',this)">⚙️ ตั้งค่า</button></nav>
+<script src="data/seed.js"></script><script src="js/app.js"></script></body></html>
