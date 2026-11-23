@@ -72,14 +72,14 @@ function toggleUnit(){S.unit=S.unit==='lb'?'kg':'lb';const w=+$('wW').value;if(w
 function renderMode(){const x=byName('ex',$('wEx').value),p=byName('part',$('wPart').value),car=isCar(x)||(!x&&p&&p.cardio==='ใช่');
  $('wStr').style.display=car?'none':'';$('wCar').style.display=car?'':'none';$('uBtn').textContent='('+(S.unit==='lb'?'lbs':'kg')+') ⇄';
  if(!x){$('wHist').innerHTML='';return;}const h=S.logs.filter(l=>l.exId===x.id).sort((a,b)=>b.date.localeCompare(a.date));
- $('wHist').innerHTML=h.length?`<div class="hist"><div class="muted">📜 ประวัติ ${esc(x.name)} (${h.length} ครั้ง)</div><table>`+h.slice(0,8).map(l=>`<tr class="ed" onclick="editLog('${l.id}')"><td>${l.date}</td><td>${esc(fmtLog(l))}</td><td class="muted">${esc(nm('equip',l.equipId))}</td></tr>`).join('')+'</table></div>':'<div class="muted" style="margin-top:8px">ยังไม่เคยเล่นท่านี้</div>';}
+ $('wHist').innerHTML=h.length?`<div class="hist"><div class="muted">📜 ประวัติ ${esc(x.name)} (${h.length} ครั้ง)</div><table>`+h.slice(0,8).map(l=>`<tr class="ed" onclick="editLog('${l.id}')"><td>${l.date}${l.time?' <span class="muted">'+l.time+'</span>':''}</td><td>${esc(fmtLog(l))}</td><td class="muted">${esc(nm('equip',l.equipId))}</td></tr>`).join('')+'</table></div>':'<div class="muted" style="margin-top:8px">ยังไม่เคยเล่นท่านี้</div>';}
 function clearFilter(){newEx();}
 function addLog(){if(!$('wEx').value.trim())return alert('ใส่ท่าก่อน');
  const b=getOrCreate('brand',$('wBrand').value);let g=null;if($('wGym').value.trim()){g=findGym(b?.id,$('wGym').value);if(!g){g={id:uid('g'),name:$('wGym').value.trim(),brandId:b?.id||null};M('gym').push(g);}}const e=getOrCreate('equip',$('wEquip').value),p=getOrCreate('part',$('wPart').value);
  const x=getOrCreate('ex',$('wEx').value,{partIds:[],equipIds:[]});
  if(p&&!x.partIds.includes(p.id))x.partIds.push(p.id);if(e&&!x.equipIds.includes(e.id))x.equipIds.push(e.id);
  S.lastGym=g?.id||null;
- const rec={id:uid('w'),date:$('wDate').value||today(),gymId:g?.id||null,exId:x.id,partId:p?.id||x.partIds[0]||null,equipId:e?.id||x.equipIds[0]||null,note:$('wNote').value};
+ const rec={id:uid('w'),date:$('wDate').value||today(),time:new Date().toTimeString().slice(0,5),ts:new Date().toISOString(),gymId:g?.id||null,exId:x.id,partId:p?.id||x.partIds[0]||null,equipId:e?.id||x.equipIds[0]||null,note:$('wNote').value};
  if(isCar(x)||(p&&p.cardio==='ใช่')){const d=nv('wDist'),t=nv('wTime');Object.assign(rec,{w:0,reps:0,sets:0,dist:d,time:t,spd:nv('wSpd')??(d&&t?+(d/(t/60)).toFixed(1):null),inc:nv('wInc'),kcal:nv('wKcal'),hr:nv('wHR')});}
  else Object.assign(rec,{w:+$('wW').value||0,u:S.unit,reps:+$('wR').value||0,sets:+$('wS').value||0});
  S.logs.push(rec);
@@ -106,7 +106,7 @@ function hMapClick(z){const p=M('part').find(x=>x.zone===z&&S.logs.some(l=>l.par
 // ---------- history / report ----------
 const HV={m:'day',id:'',r:'90'};
 function inRange(d){if(HV.r==='all')return true;const t=new Date();t.setDate(t.getDate()-+HV.r);return d>=t.toLocaleDateString('sv');}
-const logRow=(l,sub)=>`<tr class="ed" onclick="editLog('${l.id}')"><td><b>${esc(sub?nm('ex',l.exId):nm('ex',l.exId))}</b><div class="muted">${esc(nm('part',l.partId))} · ${esc(nm('equip',l.equipId))}${l.note?' · '+esc(l.note):''}</div></td><td colspan="2">${esc(fmtLog(l))}</td><td><button class="del" onclick="event.stopPropagation();delRec('logs','${l.id}')">✕</button></td></tr>`;
+const logRow=(l,sub)=>`<tr class="ed" onclick="editLog('${l.id}')"><td><b>${esc(sub?nm('ex',l.exId):nm('ex',l.exId))}</b><div class="muted">${l.time?'🕒 '+l.time+' · ':''}${esc(nm('part',l.partId))} · ${esc(nm('equip',l.equipId))}${l.note?' · '+esc(l.note):''}</div></td><td colspan="2">${esc(fmtLog(l))}</td><td><button class="del" onclick="event.stopPropagation();delRec('logs','${l.id}')">✕</button></td></tr>`;
 const vol=a=>Math.round(a.reduce((s,l)=>s+toKg(l)*(l.reps||0)*(l.sets||0),0));
 function byDate(L){const g={};[...L].sort((a,b)=>b.date.localeCompare(a.date)).forEach(l=>(g[l.date]=g[l.date]||[]).push(l));return g;}
 function renderLogs(){const L=S.logs.filter(l=>inRange(l.date)),out=$('logList');$('hMap').innerHTML='';

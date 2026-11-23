@@ -4,26 +4,33 @@
 <title>GymMan</title>
 <link rel="icon" type="image/svg+xml" href="icons/icon.svg"><link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png"><link rel="apple-touch-icon" href="icons/icon-180.png"><link rel="manifest" href="manifest.json"><meta name="theme-color" content="#1e293b">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=2"></head><body>
+<link rel="stylesheet" href="css/style.css?v=3"></head><body>
 <header><span style="display:flex;align-items:center;gap:8px"><img src="icons/icon.svg" width="26" height="26" style="border-radius:6px">GymMan</span><button id="thBtn" onclick="toggleTheme()">🌙</button></header>
 <div class="modal" id="modal" onmousedown="this._d=event.target===this" onclick="if(this._d&&event.target===this)closeM()"><div class="modal-box"><h3 id="mT"></h3><div id="mB"></div><div class="modal-btns"><button class="del" id="mDel">ลบ</button><button class="sec" onclick="closeM()">ยกเลิก</button><button onclick="mSave()">บันทึก</button></div></div></div>
 <div class="modal" id="dlg"><div class="modal-box" style="max-width:380px"><h3 id="dT"></h3><div id="dM" style="white-space:pre-line;font-size:14px"></div><div class="modal-btns"><button class="sec" id="dC" onclick="DR&&DR(false)">ยกเลิก</button><button id="dO" onclick="DR&&DR(true)"></button></div></div></div>
 <main>
 <section class="page on" id="p-log">
  <div class="card"><h3>บันทึกการเล่น</h3>
-  <div class="row"><div><label>วันที่</label><input type="date" id="wDate"></div><div><label>ชื่อยิม <span class="new" id="nBrand"></span></label><div class="cx"><input id="wBrand" list="dlBrand" placeholder="เช่น Jetts"><i onclick="clr('wBrand')">✕</i></div></div></div>
-  <label>สาขา <span class="new" id="nGym"></span></label><div class="cx"><input id="wGym" list="dlGym" placeholder="พิมพ์/เลือก"><i onclick="clr('wGym')">✕</i></div>
+  <div class="grp"><div class="gt">📍 วันที่ & สถานที่</div>
+  <label>วันที่</label><input type="date" id="wDate">
+  <div class="row"><div><label>ชื่อยิม <span class="new" id="nBrand"></span></label><div class="cx"><input id="wBrand" list="dlBrand" placeholder="เช่น Jetts"><i onclick="clr('wBrand')">✕</i></div></div>
+  <div><label>สาขา <span class="new" id="nGym"></span></label><div class="cx"><input id="wGym" list="dlGym" placeholder="พิมพ์/เลือก"><i onclick="clr('wGym')">✕</i></div></div></div>
+  </div>
+  <div class="grp"><div class="gt">🏋️ ท่าที่เล่น</div>
   <div class="row"><div><label>อุปกรณ์ <span class="new" id="nEquip"></span></label><div class="cx"><input id="wEquip" list="dlEquip" placeholder="ทั้งหมด"><i onclick="clr('wEquip')">✕</i></div></div>
   <div><label>ส่วน <span class="new" id="nPart"></span></label><div class="cx"><input id="wPart" list="dlPart" placeholder="ทั้งหมด"><i onclick="clr('wPart')">✕</i></div></div></div>
   <label>ท่า <span class="new" id="nEx"></span> <a class="lnk" onclick="newEx()">↺ เริ่มท่าใหม่ (ล้างทั้งหมด)</a></label><div class="cx"><input id="wEx" list="dlEx" placeholder="พิมพ์/เลือก"><i onclick="clr('wEx')">✕</i></div>
+  </div>
+  <div class="grp"><div class="gt">📊 ผลการเล่น</div>
   <div id="wStr" class="row3"><div><label>น้ำหนัก <a class="lnk" id="uBtn" onclick="toggleUnit()"></a></label><input type="number" step="any" id="wW" inputmode="decimal"></div>
   <div><label>Reps</label><input type="number" id="wR" inputmode="numeric"></div><div><label>Sets</label><input type="number" id="wS" inputmode="numeric"></div></div>
   <div id="wCar" style="display:none"><div class="row3"><div><label>ระยะทาง (กม.)</label><input type="number" step="any" id="wDist" inputmode="decimal"></div><div><label>เวลา (นาที)</label><input type="number" step="any" id="wTime" inputmode="decimal"></div><div><label>Avg Pace</label><input id="wPace" readonly placeholder="อัตโนมัติ"></div></div>
   <div class="row3"><div><label>ความเร็ว (กม./ชม.)</label><input type="number" step="any" id="wSpd" placeholder="ว่าง=คำนวณ"></div><div><label>ความชัน (%)</label><input type="number" step="any" id="wInc"></div><div><label>kcal</label><input type="number" id="wKcal"></div></div>
   <label>Avg HR (bpm)</label><input type="number" id="wHR"></div>
-  <div id="wHist"></div>
   <label>หมายเหตุ</label><input id="wNote">
-  <button onclick="addLog()">💾 บันทึก</button> <button class="sec" onclick="clearFilter()">ล้างตัวกรอง</button> <button class="sec" onclick="startTimer(S.rest)">⏱ พัก</button>
+  </div>
+  <div class="acts"><button onclick="addLog()">💾 บันทึก</button><button class="sec" onclick="clearFilter()">ล้างตัวกรอง</button><button class="sec" onclick="startTimer(S.rest)">⏱ พัก</button></div>
+  <div id="wHist"></div>
  </div>
  <div class="card"><h3>⏱ จับเวลาพัก</h3><div id="timer">00:00</div>
   <div class="tbtns"><button class="sec" onclick="startTimer(30)">30s</button><button class="sec" onclick="startTimer(60)">60s</button><button class="sec" onclick="startTimer(90)">90s</button><button class="sec" onclick="startTimer(120)">2m</button><button class="sec" onclick="startTimer(180)">3m</button><button class="del" style="margin-top:10px;padding:10px 14px" onclick="stopTimer()">หยุด</button></div></div>
